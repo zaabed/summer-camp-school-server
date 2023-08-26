@@ -49,6 +49,7 @@ async function run() {
 
         const classesCollection = client.db('summerCamp').collection('classes');
         const teachersCollection = client.db('summerCamp').collection('teachers');
+        const cartCollection = client.db('summerCamp').collection('carts');
 
         //step1:implement jwt----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -69,7 +70,13 @@ async function run() {
             res.send(result);
         })
 
+        //Cart Collection-------------------------------------------------------------
 
+        app.post('/carts', async (req, res) => {
+            const item = req.body;
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        })
 
 
 
