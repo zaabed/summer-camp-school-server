@@ -59,19 +59,24 @@ async function run() {
             res.send(token);
         })
 
+        //verifyAdmin secure apis
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'admin') {
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
 
         //Get Users who create account and use this website and save data on database----------------------------------------------------------------
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         })
-
-        //find admin Info
-        // app.get('/users/admin/', async (req, res) => {
-        //     const result = await usersCollection.find().toArray();
-        //     res.send(result);
-        // })
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -81,6 +86,25 @@ async function run() {
                 return res.send({ message: 'user already exists' });
             }
             const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        //Is Register Person user or admin check it. 3 Step
+        /**
+         * security layer: verifyJWT
+         * email same
+         * check admin
+        */
+        app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+
+            if (req.decoded.email !== email) {
+                res.send({ admin: false });
+            }
+
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            const result = { admin: user?.role === 'admin' };
             res.send(result);
         })
 
@@ -107,7 +131,7 @@ async function run() {
 
         //Get Courses And Teacher----------------------------------------------------
 
-        app.get('/classes', async (req, res) => {
+        app.get('/classes', verifyJWT, async (req, res) => {
             const result = await classesCollection.find().toArray();
             res.send(result);
         })
