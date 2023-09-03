@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken'); //step0: declare jwt
 const port = process.env.PORT || 5000;
@@ -47,6 +47,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
+        const usersCollection = client.db('summerCamp').collection('users');
         const classesCollection = client.db('summerCamp').collection('classes');
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
@@ -56,6 +57,20 @@ async function run() {
             const user = req.body;
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
             res.send(token);
+        })
+
+
+        //Get Users who create account and use this website and save data on database----------------------------------------------------------------
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists' });
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
         })
 
         //Get Courses And Teacher----------------------------------------------------
@@ -91,9 +106,12 @@ async function run() {
             res.send(result);
         })
 
-
-
-
+        app.delete('/carts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
