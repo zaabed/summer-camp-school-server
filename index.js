@@ -52,7 +52,7 @@ async function run() {
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
 
-        //step1:implement jwt----make token and go to client side (AuthProvider.jsx)
+        //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
