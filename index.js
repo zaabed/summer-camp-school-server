@@ -179,6 +179,12 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/classes', async (req, res) => {
+            const course = req.body;
+            const result = await classesCollection.insertOne(course);
+            res.send(result);
+        })
+
         app.get('/teachers', async (req, res) => {
             const result = await teachersCollection.find().toArray();
             res.send(result);
