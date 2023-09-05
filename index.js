@@ -49,6 +49,7 @@ async function run() {
 
         const usersCollection = client.db('summerCamp').collection('users');
         const classesCollection = client.db('summerCamp').collection('classes');
+        const InstructorCoursesCollection = client.db('summerCamp').collection('instructorCourses');
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
 
@@ -188,6 +189,37 @@ async function run() {
         app.get('/teachers', async (req, res) => {
             const result = await teachersCollection.find().toArray();
             res.send(result);
+        })
+
+        //Get Instructor Wise Courses----------------------------------------------------
+
+        // app.get('/instructorCourses', async (req, res) => {
+        //     const result = await InstructorCoursesCollection.find().toArray();
+        //     res.send(result);
+        // })
+
+        //only show login instructor Data: 
+        app.get('/instructorCourses', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([]);
+            }
+            else {
+                const query = { email: email };
+                const result = await InstructorCoursesCollection.find(query).toArray();
+                res.send(result);
+            }
+        })
+
+        app.post('/instructorCourses', async (req, res) => {
+            const instructorCourses = req.body;
+            const result = await InstructorCoursesCollection.insertOne(instructorCourses);
+            res.send(result);
+        })
+
+        app.put('/instructorCourses/:id', (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
         })
 
         //Cart Collection-------------------------------------------------------------
