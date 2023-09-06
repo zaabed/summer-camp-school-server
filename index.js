@@ -193,10 +193,11 @@ async function run() {
 
         //Get Instructor Wise Courses----------------------------------------------------
 
-        // app.get('/instructorCourses', async (req, res) => {
-        //     const result = await InstructorCoursesCollection.find().toArray();
-        //     res.send(result);
-        // })
+        // get all instructor courses
+        app.get('/instructorCourses', async (req, res) => {
+            const result = await InstructorCoursesCollection.find().toArray();
+            res.send(result);
+        })
 
         //only show login instructor Data: 
         app.get('/instructorCourses', async (req, res) => {
@@ -217,10 +218,10 @@ async function run() {
             res.send(result);
         })
 
-        app.put('/instructorCourses/:id', (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-        })
+        // app.put('/instructorCourses/:id', (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        // })
 
         //Cart Collection-------------------------------------------------------------
 
@@ -251,7 +252,15 @@ async function run() {
         })
 
 
+        //make admin home data collection ---------------------
+        // app.get('/admin-stats', async (req, res) => {
+        //     const allCourses = await InstructorCoursesCollection.e
 
+
+        //     res.send({
+        //         allCourses
+        //     })
+        // })
 
 
 
