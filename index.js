@@ -199,6 +199,13 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/instructorCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await InstructorCoursesCollection.findOne(query);
+            res.send(result);
+        })
+
         //only show login instructor Data: 
         app.get('/instructorCourses', async (req, res) => {
             const email = req.query.email;
@@ -218,10 +225,22 @@ async function run() {
             res.send(result);
         })
 
-        // app.put('/instructorCourses/:id', (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        // })
+        app.put('/instructorCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedClass = req.body;
+            const course = {
+                $set: {
+                    name: updatedClass.name,
+                    seats: updatedClass.seats,
+                    price: updatedClass.price
+
+                }
+            };
+            const result = await InstructorCoursesCollection.updateOne(filter, course, options);
+            res.send(result);
+        })
 
         //Cart Collection-------------------------------------------------------------
 
