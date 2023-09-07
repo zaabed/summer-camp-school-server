@@ -207,7 +207,7 @@ async function run() {
         })
 
         //only show login instructor Data: 
-        app.get('/instructorCourses', async (req, res) => {
+        app.get('/myCourses', async (req, res) => {
             const email = req.query.email;
             if (!email) {
                 res.send([]);
