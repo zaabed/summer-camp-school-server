@@ -52,6 +52,7 @@ async function run() {
         const InstructorCoursesCollection = client.db('summerCamp').collection('instructorCourses');
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
+        const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -191,6 +192,23 @@ async function run() {
             res.send(result);
         })
 
+
+        //Get Instructor Wise Courses----------------------------------------------------
+
+        app.post('/approvedCourses', async (req, res) => {
+            const course = req.body;
+            const result = await approvedCoursesCollection.insertOne(course);
+            res.send(result);
+        })
+
+
+
+
+
+
+
+
+
         //Get Instructor Wise Courses----------------------------------------------------
 
         // get all instructor courses
@@ -200,6 +218,14 @@ async function run() {
         })
 
         app.get('/instructorCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await InstructorCoursesCollection.findOne(query);
+            res.send(result);
+        })
+
+        //Courses status update
+        app.get('/updateCoursesStatus/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await InstructorCoursesCollection.findOne(query);
@@ -225,6 +251,7 @@ async function run() {
             res.send(result);
         })
 
+        //Courses all data update
         app.put('/instructorCourses/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -241,6 +268,40 @@ async function run() {
             const result = await InstructorCoursesCollection.updateOne(filter, course, options);
             res.send(result);
         })
+
+        //Courses status update
+        app.put('/updateCoursesStatus/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateCourseStatus = req.body;
+            const updateStatus = {
+                $set: {
+                    // status: updateCourseStatus.status
+                    status: updateCourseStatus.status,
+                    email: updateCourseStatus.email,
+                    image: updateCourseStatus.image,
+                    instructor: updateCourseStatus.instructor,
+                    name: updateCourseStatus.name,
+                    price: updateCourseStatus.price,
+                    seats: updateCourseStatus.seats
+                }
+            };
+            const result = await InstructorCoursesCollection.updateOne(filter, updateStatus, options);
+            res.send(result);
+        })
+
+
+
+
+
+
+
+
+
+
+
+
 
         //Cart Collection-------------------------------------------------------------
 
