@@ -193,19 +193,18 @@ async function run() {
         })
 
 
-        //Get Instructor Wise Courses----------------------------------------------------
+        //Get Approved Courses----------------------------------------------------
+
+        app.get('/approvedCourses', async (req, res) => {
+            const result = await approvedCoursesCollection.find().toArray();
+            res.send(result);
+        })
 
         app.post('/approvedCourses', async (req, res) => {
             const course = req.body;
             const result = await approvedCoursesCollection.insertOne(course);
             res.send(result);
         })
-
-
-
-
-
-
 
 
 
@@ -231,6 +230,14 @@ async function run() {
             const result = await InstructorCoursesCollection.findOne(query);
             res.send(result);
         })
+
+        app.get('/denyCoursesStatus/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await InstructorCoursesCollection.findOne(query);
+            res.send(result);
+        })
+
 
         //only show login instructor Data: 
         app.get('/myCourses', async (req, res) => {
@@ -277,7 +284,6 @@ async function run() {
             const updateCourseStatus = req.body;
             const updateStatus = {
                 $set: {
-                    // status: updateCourseStatus.status
                     status: updateCourseStatus.status,
                     email: updateCourseStatus.email,
                     image: updateCourseStatus.image,
@@ -292,15 +298,19 @@ async function run() {
         })
 
 
-
-
-
-
-
-
-
-
-
+        app.put('/denyCoursesStatus/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateCourseStatus = req.body;
+            const updateStatus = {
+                $set: {
+                    status: updateCourseStatus.status,
+                }
+            };
+            const result = await InstructorCoursesCollection.updateOne(filter, updateStatus, options);
+            res.send(result);
+        })
 
 
         //Cart Collection-------------------------------------------------------------
