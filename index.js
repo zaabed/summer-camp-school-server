@@ -53,6 +53,7 @@ async function run() {
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
+        const feedbackCollection = client.db('summerCamp').collection('feedback');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -239,6 +240,24 @@ async function run() {
         })
 
 
+
+
+        //GET FEEDBACK COLLECTION
+
+        // app.get('/feedback', async (req, res) => {
+        //     const result = await feedbackCollection.find().toArray();
+        //     res.send(result);
+        // })
+
+        // app.get('/feedback/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await InstructorCoursesCollection.findOne(query);
+        //     res.send(result);
+        // })
+
+
+
         //only show login instructor Data: 
         app.get('/myCourses', async (req, res) => {
             const email = req.query.email;
@@ -258,6 +277,15 @@ async function run() {
             res.send(result);
         })
 
+        //POST FEEDBACK COLLECTION
+
+        // app.post('/feedback', async (req, res) => {
+        //     const adminFeedback = req.body;
+        //     const result = await feedbackCollection.insertOne(adminFeedback);
+        //     res.send(result);
+        // })
+
+
         //Courses all data update
         app.put('/instructorCourses/:id', async (req, res) => {
             const id = req.params.id;
@@ -276,7 +304,7 @@ async function run() {
             res.send(result);
         })
 
-        //Courses status update
+        //Courses Approve status update
         app.put('/updateCoursesStatus/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -297,7 +325,7 @@ async function run() {
             res.send(result);
         })
 
-
+        //Courses deny and denied reason status update
         app.put('/denyCoursesStatus/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -306,6 +334,7 @@ async function run() {
             const updateStatus = {
                 $set: {
                     status: updateCourseStatus.status,
+                    feedback: updateCourseStatus.feedback,
                 }
             };
             const result = await InstructorCoursesCollection.updateOne(filter, updateStatus, options);
