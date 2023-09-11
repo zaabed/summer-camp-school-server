@@ -3,6 +3,7 @@ const app = express();
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
 const jwt = require('jsonwebtoken'); //step0: declare jwt
 const port = process.env.PORT || 5000;
 
@@ -53,7 +54,6 @@ async function run() {
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
-        // const feedbackCollection = client.db('summerCamp').collection('feedback');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -73,7 +73,7 @@ async function run() {
             next();
         }
 
-        //verifyAdmin secure apis
+        //verifyInstructor secure apis
         const verifyInstructor = async (req, res, next) => {
             const email = req.decoded.email;
             const query = { email: email };
@@ -208,7 +208,6 @@ async function run() {
             res.send(result);
         })
 
-
         //only show login instructor approved classes: 
         app.get('/myApprovedCourses', async (req, res) => {
             const email = req.query.email;
@@ -228,7 +227,7 @@ async function run() {
             res.send(result);
         })
 
-        //Courses Approve status update
+        // Approve Course update
         app.put('/approvedCourses/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -319,7 +318,7 @@ async function run() {
             res.send(result);
         })
 
-        //Courses Approve status update
+        //Courses Approved status update
         app.put('/updateCoursesStatus/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -386,15 +385,26 @@ async function run() {
         })
 
 
-        //make admin home data collection ---------------------
-        // app.get('/admin-stats', async (req, res) => {
-        //     const allCourses = await InstructorCoursesCollection.e
+        //Payment System Implement----------------------------------------------------
 
+        app.post("/create-payment-intent", async (req, res) => {
+            const { price } = req.body;
+            const amount = price * 100;
 
-        //     res.send({
-        //         allCourses
-        //     })
-        // })
+            console.log(price);
+            console.log(amount);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ['card']
+            })
+
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        })
+
 
 
 
