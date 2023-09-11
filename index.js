@@ -53,7 +53,7 @@ async function run() {
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
-        const feedbackCollection = client.db('summerCamp').collection('feedback');
+        // const feedbackCollection = client.db('summerCamp').collection('feedback');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -201,9 +201,51 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/approvedCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await approvedCoursesCollection.findOne(query);
+            res.send(result);
+        })
+
+
+        //only show login instructor approved classes: 
+        app.get('/myApprovedCourses', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([]);
+            }
+            else {
+                const query = { email: email };
+                const result = await approvedCoursesCollection.find(query).toArray();
+                res.send(result);
+            }
+        })
+
         app.post('/approvedCourses', async (req, res) => {
             const course = req.body;
             const result = await approvedCoursesCollection.insertOne(course);
+            res.send(result);
+        })
+
+        //Courses Approve status update
+        app.put('/approvedCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateApprovedCourse = req.body;
+            const update = {
+                $set: {
+                    status: updateApprovedCourse.status,
+                    email: updateApprovedCourse.email,
+                    image: updateApprovedCourse.image,
+                    instructor: updateApprovedCourse.instructor,
+                    name: updateApprovedCourse.name,
+                    price: updateApprovedCourse.price,
+                    seats: updateApprovedCourse.seats
+                }
+            };
+            const result = await approvedCoursesCollection.updateOne(filter, update, options);
             res.send(result);
         })
 
@@ -240,24 +282,6 @@ async function run() {
         })
 
 
-
-
-        //GET FEEDBACK COLLECTION
-
-        // app.get('/feedback', async (req, res) => {
-        //     const result = await feedbackCollection.find().toArray();
-        //     res.send(result);
-        // })
-
-        // app.get('/feedback/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await InstructorCoursesCollection.findOne(query);
-        //     res.send(result);
-        // })
-
-
-
         //only show login instructor Data: 
         app.get('/myCourses', async (req, res) => {
             const email = req.query.email;
@@ -276,15 +300,6 @@ async function run() {
             const result = await InstructorCoursesCollection.insertOne(instructorCourses);
             res.send(result);
         })
-
-        //POST FEEDBACK COLLECTION
-
-        // app.post('/feedback', async (req, res) => {
-        //     const adminFeedback = req.body;
-        //     const result = await feedbackCollection.insertOne(adminFeedback);
-        //     res.send(result);
-        // })
-
 
         //Courses all data update
         app.put('/instructorCourses/:id', async (req, res) => {
