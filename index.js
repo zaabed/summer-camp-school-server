@@ -54,6 +54,7 @@ async function run() {
         const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
+        const paymentCollection = client.db('summerCamp').collection('payments');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -391,8 +392,8 @@ async function run() {
             const { price } = req.body;
             const amount = price * 100;
 
-            console.log(price);
-            console.log(amount);
+            // console.log(price);
+            // console.log(amount);
 
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
@@ -403,6 +404,32 @@ async function run() {
             res.send({
                 clientSecret: paymentIntent.client_secret,
             });
+        })
+
+
+        //Payment Store on Database----------------------------------------------------
+
+        //only show login user Data: 
+        app.get('/payments', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([]);
+            }
+            else {
+                const query = { email: email };
+                const result = await paymentCollection.find(query).toArray();
+                res.send(result);
+            }
+        })
+
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const insertResult = await paymentCollection.insertOne(payment);
+
+            const query = { _id: { $in: payment.courseCartId.map(id => new ObjectId(id)) } }
+            const deletedResult = await cartCollection.deleteMany(query);
+
+            res.send({ insertResult, deletedResult });
         })
 
 
