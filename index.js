@@ -87,8 +87,8 @@ async function run() {
 
 
         //Get Users who create account and use this website and save data on database----------------------------------------------------------------
-        //TODE : verifyAdmin 
-        app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
+        //TODE : verifyAdmin, verify jwt 
+        app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         })
@@ -432,6 +432,27 @@ async function run() {
             res.send({ insertResult, deletedResult });
         })
 
+
+
+
+        //Make Dashboard Information--------------------------------------------------
+
+        app.get('/admin-stats', async (req, res) => {
+            const users = await usersCollection.estimatedDocumentCount();
+            const courses = await approvedCoursesCollection.estimatedDocumentCount();
+
+
+            //sum of all payment collection price
+
+            const payments = await paymentCollection.find().toArray();
+            const revenue = payments.reduce((sum, payment) => sum + parseFloat(payment.price), 0);
+
+            res.send({
+                users,
+                courses,
+                revenue
+            })
+        })
 
 
 
