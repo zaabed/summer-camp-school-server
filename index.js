@@ -55,6 +55,7 @@ async function run() {
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
         const paymentCollection = client.db('summerCamp').collection('payments');
+        const reviewCollection = client.db('summerCamp').collection('reviews');
 
         //step1:implement jwt-----make token and go to client side (AuthProvider.jsx)
         app.post('/jwt', (req, res) => {
@@ -178,19 +179,13 @@ async function run() {
 
         //Get Courses And Teacher----------------------------------------------------
 
-        app.get('/classes', async (req, res) => {
-            const result = await classesCollection.find().toArray();
+        app.get('/approvedCourses', async (req, res) => {
+            const result = await approvedCoursesCollection.find().toArray();
             res.send(result);
         })
 
-        app.post('/classes', async (req, res) => {
-            const course = req.body;
-            const result = await classesCollection.insertOne(course);
-            res.send(result);
-        })
-
-        app.get('/teachers', async (req, res) => {
-            const result = await teachersCollection.find().toArray();
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewCollection.find().toArray();
             res.send(result);
         })
 
