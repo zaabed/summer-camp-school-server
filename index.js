@@ -49,9 +49,9 @@ async function run() {
         await client.connect();
 
         const usersCollection = client.db('summerCamp').collection('users');
-        const classesCollection = client.db('summerCamp').collection('classes');
+        // const classesCollection = client.db('summerCamp').collection('classes');
         const InstructorCoursesCollection = client.db('summerCamp').collection('instructorCourses');
-        const teachersCollection = client.db('summerCamp').collection('teachers');
+        // const teachersCollection = client.db('summerCamp').collection('teachers');
         const cartCollection = client.db('summerCamp').collection('carts');
         const approvedCoursesCollection = client.db('summerCamp').collection('approvedCourses');
         const paymentCollection = client.db('summerCamp').collection('payments');
